@@ -1,0 +1,82 @@
+# # Enable debug logging
+# debug:
+# 	@echo "\033[34m[debugon]\033[0m \033[32mTerraform debug enabled\033[0m"
+# 	TF_LOG=DEBUG TF_LOG_PATH=terraform.log 
+# # Disable debug (just info message)
+# debugoff:
+# 	@echo "\033[34m[debugoff]\033[0m \033[32mTerraform debugger Disable\033[0m"
+# 	TF_LOG=DEBUG TF_LOG_PATH=terraform.log terraform plan
+# # Check formatting & validation
+# check:
+# 	@echo "\033[34m[fmt,validate]\033[0m \033[32mTerraform command is runing\033[0m"
+# 	terraform fmt -check -recursive
+# 	terraform validate
+# 	terraform plan
+# # Deploy infrastructure
+# deploy:
+# 	@echo "\033[34m[]\033[0m \033[32mTerraform init enabled\033[0m"
+# 	terraform plan
+# 	terraform apply -auto-approve
+# # Destroy infrastructure
+# destroy:
+# 	terraform destroy -auto-approve
+
+
+# 	.PHONY: debug debugoff check deploy destroy init plan apply
+# Colors
+BLUE=\033[34m
+GREEN=\033[32m
+RED=\033[31m
+RESET=\033[0m
+
+# Enable debug (for one command execution)
+debug:
+	@echo "$(BLUE)[DEBUG-ON]$(RESET) $(GREEN)Terraform debug enabled$(RESET)"
+	TF_LOG=DEBUG TF_LOG_PATH=terraform.log terraform plan
+
+# Disable debug (info only)
+debugoff:
+	@echo "$(BLUE)[DEBUG-OFF]$(RESET) $(GREEN)Terraform debug disabled$(RESET)"
+	unset TF_LOG 
+	unset TF_LOG_PATH
+
+# Initialize terraform
+init:
+	@echo "$(BLUE)[INIT]$(RESET) $(GREEN)Initializing the Terraform project$(RESET)"
+	terraform init
+	@echo "$(BLUE)[INIT]$(RESET) $(GREEN)The Terraform project setup is complete. Please proceed with the next steps.$(RESET)"
+
+# Format + Validate + Plan
+check: init
+	@echo "$(BLUE)[CHECK]$(RESET) $(GREEN)Running fmt, validate, plan$(RESET)"
+	terraform fmt -check -recursive
+	terraform validate
+	terraform plan
+
+# Plan only
+plan:
+	@echo "$(BLUE)[PLAN]$(RESET) $(GREEN)Terraform Plan Runing$(RESET)"
+	@echo "$(BLUE)[PLAN]$(RESET) $(GREEN)Load config (terraform init) $(RESET)"
+	@echo "$(BLUE)[PLAN]$(RESET) $(GREEN)Refresh infra (terraform refresh) $(RESET)"
+	@echo "$(BLUE)[PLAN]$(RESET) $(GREEN)Plan (terraform plan) $(RESET)"
+	@echo "$(BLUE)[PLAN]$(RESET) $(GREEN)Apply execution (terraform apply) $(RESET)"
+	@echo "$(BLUE)[PLAN]$(RESET) $(GREEN)State update(automatic) $(RESET)"
+	terraform plan -auto-approve
+# Apply infrastructure
+apply:
+	@echo "$(BLUE)[APPLY]$(RESET) $(GREEN)Applying Terraform changes$(RESET)"
+	@echo "$(BLUE)[PLAN]$(RESET) $(GREEN)Load config (terraform init) $(RESET)"
+	@echo "$(BLUE)[PLAN]$(RESET) $(GREEN)Refresh infra (terraform refresh) $(RESET)"
+	@echo "$(BLUE)[PLAN]$(RESET) $(GREEN)Plan destroy (terraform plan -destroy) $(RESET)"
+	@echo "$(BLUE)[PLAN]$(RESET) $(GREEN)Execute destroy (terraform destroy) $(RESET)"
+	@echo "$(BLUE)[PLAN]$(RESET) $(GREEN)State update (automatic) $(RESET)"
+	terraform apply -auto-approve
+
+# Full deploy pipeline
+deploy: check apply
+	@echo "$(GREEN)[SUCCESS] Terraform deployment completed$(RESET)"
+
+# Destroy infrastructure
+destroy:
+	@echo "$(RED)[DESTROY]$(RESET) Destroying infrastructure"
+	terraform destroy -auto-approve
